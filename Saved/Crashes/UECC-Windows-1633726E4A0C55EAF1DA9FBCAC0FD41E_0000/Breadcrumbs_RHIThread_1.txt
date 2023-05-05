@@ -1,0 +1,5 @@
+Breadcrumbs 'RHIThread'
+Context 1/2
+	00 Scene
+	01 LumenSceneUpdate: 45 card captures 0.054M texels
+	02 UpdateCardSceneBuffer

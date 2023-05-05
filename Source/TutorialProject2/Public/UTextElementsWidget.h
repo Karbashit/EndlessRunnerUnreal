@@ -18,14 +18,25 @@ public:
 	
 	void SetTimer(int MSec, int Sec, int Min);
 
+	FString SecondsPassed;
+	
 	UPROPERTY()
-	UImage* Life1;
+	UImage* Player1Life1;
 
 	UPROPERTY()
-	UImage* Life2;
+	UImage* Player1Life2;
 
 	UPROPERTY()
-	UImage* Life3;
+	UImage* Player1Life3;
+
+	UPROPERTY()
+	UImage* Player2Life1;
+
+	UPROPERTY()
+	UImage* Player2Life2;
+
+	UPROPERTY()
+	UImage* Player2Life3;
 
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* Time;
@@ -39,8 +50,8 @@ public:
 	UPROPERTY( Transient, meta = ( BindWidgetAnim ) )
 	UWidgetAnimation* ReadyFade;
 
-	void RemoveLife();
-	int Life = 3;
+	void RemoveLife(int32 PlayerIndex);
+
 	
 
 private:

@@ -14,6 +14,7 @@
 #include "TutorialProject2/Public/UInputSystem.h"
 #include "EnhancedInput/Public/EnhancedInputSubsystems.h"
 #include "EnhancedInput/Public/InputActionValue.h"
+#include "Kismet/GameplayStatics.h"
 #include "EnhancedInput/Public/InputMappingContext.h"
 #include "TutorialProject2/Public/PauseMenuWidget.h"
 #include "TutorialProject2/Public/UTextElementsWidget.h"
@@ -27,17 +28,17 @@ APrimaryObjectBase::APrimaryObjectBase() {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("StaticMeshComponent");
-	CameraComponent = CreateDefaultSubobject<UCameraMovement>("CameraMovement");
+	//CameraComponent = CreateDefaultSubobject<UCameraMovement>("CameraMovement");
 	movementComponent = CreateDefaultSubobject<UMovement>("UMovement");
 	InputSystemComponent = CreateDefaultSubobject<UInputSystem>("UInputSystem");
 
 	APrimaryObjectBase::SetupPlayerInputComponent(InputSystemComponent);
 	StaticMeshComponent->SetSimulatePhysics(true);
 	SetRootComponent(StaticMeshComponent);
-	CameraComponent->SpringArmComponent->AttachToComponent(GetRootComponent(),
-	                                                       FAttachmentTransformRules::KeepRelativeTransform);
-	CameraComponent->CameraComponent->AttachToComponent(CameraComponent->SpringArmComponent,
-	                                                    FAttachmentTransformRules::KeepRelativeTransform);
+	// CameraComponent->SpringArmComponent->AttachToComponent(GetRootComponent(),
+	//                                                        FAttachmentTransformRules::KeepRelativeTransform);
+	// CameraComponent->CameraComponent->AttachToComponent(CameraComponent->SpringArmComponent,
+	//                                                     FAttachmentTransformRules::KeepRelativeTransform)
 }
 
 void APrimaryObjectBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
@@ -59,6 +60,10 @@ void APrimaryObjectBase::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	if (PEI != nullptr) {
 		PEI->BindAction(InputSystemComponent->InputMoveLeft, ETriggerEvent::Triggered, this,
 		                &APrimaryObjectBase::MoveLeft);
+		PEI->BindAction(InputSystemComponent->InputMoveLeftP2, ETriggerEvent::Triggered, this,
+		                &APrimaryObjectBase::MoveLeftP2);
+		PEI->BindAction(InputSystemComponent->InputMoveRightP2, ETriggerEvent::Triggered, this,
+		                &APrimaryObjectBase::MoveRightP2);
 		PEI->BindAction(InputSystemComponent->InputMoveRight, ETriggerEvent::Triggered, this,
 		                &APrimaryObjectBase::MoveRight);
 		PEI->BindAction(InputSystemComponent->JumpAction, ETriggerEvent::Triggered, this, &APrimaryObjectBase::Jump);
@@ -80,27 +85,42 @@ void APrimaryObjectBase::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void APrimaryObjectBase::MoveLeft(const FInputActionValue& Value) {
 	if (PlayerPositionIndex > 0) {
 		PlayerPositionIndex--;
-		MovePlayer(PlayerPositions[PlayerPositionIndex]);
+		MovePlayer(GetCorrectArray(PlayerIndex)[PlayerPositionIndex]); 
 	}
 	else {
 		return;
 	}
-
-	// moveInput = Value.Get<FVector2D>();
-	// UE_LOG(LogTemp, Display, TEXT("MoveInput Detected: X=%f, Y=%f"), moveInput.X, moveInput.Y);
 }
 
 void APrimaryObjectBase::MoveRight(const FInputActionValue& Value) {
 	if (PlayerPositionIndex < 2) {
 		PlayerPositionIndex++;
-		MovePlayer(PlayerPositions[PlayerPositionIndex]);
+		MovePlayer(GetCorrectArray(PlayerIndex)[PlayerPositionIndex]); 
 	}
 	else {
 		return;
 	}
+}
 
-	// moveInput = Value.Get<FVector2D>();
-	// UE_LOG(LogTemp, Display, TEXT("MoveInput Detected: X=%f, Y=%f"), moveInput.X, moveInput.Y);
+
+void APrimaryObjectBase::MoveLeftP2(const FInputActionValue& Value) {
+	APrimaryObjectBase* TempBase = Cast<APrimaryObjectBase>(
+		UGameplayStatics::GetPlayerController(GetWorld(), 1)->GetCharacter());
+	if (TempBase) {
+		TempBase->MoveLeft(Value);
+	}
+}
+
+void APrimaryObjectBase::MoveRightP2(const FInputActionValue& Value) {
+	APrimaryObjectBase* TempBase = Cast<APrimaryObjectBase>(
+		UGameplayStatics::GetPlayerController(GetWorld(), 1)->GetCharacter());
+	if (TempBase) {
+		TempBase->MoveRight(Value);
+	}
+}
+
+void APrimaryObjectBase::RemoveLife() {
+
 }
 
 void APrimaryObjectBase::TurnLeft(const FInputActionValue& Value) {
@@ -112,6 +132,7 @@ void APrimaryObjectBase::TurnRight(const FInputActionValue& Value) {
 	UE_LOG(LogTemp, Display, TEXT("Right"));
 	movementComponent->Turn(StaticMeshComponent, 90);
 }
+
 
 void APrimaryObjectBase::Jump(const FInputActionValue& Value) {
 	if (GroundCheck()) {
@@ -169,22 +190,19 @@ void APrimaryObjectBase::MovePlayer(FVector fvector) {
 	CurrentPosition = fvector;
 }
 
+TArray<FVector> APrimaryObjectBase::GetCorrectArray(int playerNumbner) {
+	if (playerNumbner == 0) {
+		return Player1Positions;
+	}
+	return Player2Positions;
+}
+
 // Called when the game starts or when spawned
 void APrimaryObjectBase::BeginPlay() {
 	Super::BeginPlay();
-	PlayerPosition1 = FVector(101.887642f, 2924.44733f, 39.887158f);
-	PlayerPosition2 = FVector(-35.965259f, 2924.44733f, 39.887158f);
-	PlayerPosition3 = FVector(-184.489698f, 2924.44733f, 39.887158f);
-	PlayerPositions.Add(PlayerPosition1);
-	PlayerPositions.Add(PlayerPosition2);
-	PlayerPositions.Add(PlayerPosition3);
+
 	PlayerPositionIndex = 1;
-	MovePlayer(PlayerPositions[PlayerPositionIndex]);
 
-
-	PauseWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), PauseWidgetClass);
-	UITextWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), UITextWidgetClass);
-	UE_LOG(LogTemp, Display, TEXT("Widgetclass is %s"), *PauseWidgetClass->GetName());
 
 	if (PauseWidgetInstance != nullptr) {
 		PauseWidgetInstance->AddToViewport();
@@ -198,21 +216,27 @@ void APrimaryObjectBase::BeginPlay() {
 			UE_LOG(LogTemp, Display, TEXT("Widget is not in viewport"));
 		}
 	}
-	PauseWidget->CacheSubAndInput(SubSystem, InputSystemComponent);
+	// PauseWidget->CacheSubAndInput(SubSystem, InputSystemComponent);
 
-	if (UITextWidgetInstance == nullptr) {
-		UE_LOG(LogTemp, Display, TEXT("UITEXT is null"));
+	if (this->GetName() == "Player1Obj_C_0") {
+		SetActorLocation(FVector(442.743762f, 3492.18148f, 65.576674f));
+		Player1Positions.Add(Player1Position1);
+		Player1Positions.Add(Player1Position2);
+		Player1Positions.Add(Player1Position3);
+	}
+	else {
+		SetActorLocation(FVector(-519.085065f, 3492.18148f, 65.576674f));
+		Player2Positions.Add(Player2Position1);
+		Player2Positions.Add(Player2Position2);
+		Player2Positions.Add(Player2Position3);
 	}
 
-	if (UITextWidgetInstance != nullptr) {
-		UITextWidgetInstance->AddToViewport();
-		UE_LOG(LogTemp, Display, TEXT("UITEXT is added to viewport"));
-		if (UITextWidgetInstance->IsInViewport()) {
-			UE_LOG(LogTemp, Display, TEXT("UITEXT is in viewport"));
-			UITextWidget = CastChecked<UTextElementsWidget>(UITextWidgetInstance);
-			UITextWidget->PlayAnimation(UITextWidget->TimeText, 0, 1);
-			UITextWidget->SetVisibility(ESlateVisibility::Visible);
-		}
+
+	if (GetActorLocation().X > 0) {
+		PlayerIndex = 0;
+	}
+	else {
+		PlayerIndex = 1;
 	}
 
 }
@@ -220,32 +244,18 @@ void APrimaryObjectBase::BeginPlay() {
 // Called every frame
 void APrimaryObjectBase::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-	TimeFromStart += DeltaTime;
 
-	if (TimeFromStart >= 2 && TimeFromStart <= 2.5f) {
-		UITextWidget->ReadyText->SetText(FText::FromString(TEXT("Set..")));
-	}
-	if (TimeFromStart >= 3 && TimeFromStart <= 3.5f) {
-		UITextWidget->ReadyText->SetText(FText::FromString(TEXT("GO!")));
-		UITextWidget->PlayAnimation(UITextWidget->ReadyFade);
-		GameStarted = true;
-	}
-	CameraComponent->LerpCamera(DeltaTime, StaticMeshComponent, CameraComponent->SpringArmComponent);
-	if (GameStarted == true) {
-		//movementComponent->Move(DeltaTime, StaticMeshComponent, moveInput);
-		jumpTimer += DeltaTime;
-		boostTimer += DeltaTime;
-		TotalTime += DeltaTime;
-		int Min = (int)(TotalTime / 60);
-		int Sec = ((int)TotalTime % 60);
-		int MSec = ((int)(TotalTime * 1000) % 1000);
-		UITextWidget->SetTimer(MSec, Sec, Min);
 
-		if (boostTimer > 0.08f) {
-			movementComponent->movementSpeed = 10;
-		}
-		if (GroundCheck()) {
-			canDash = true;
-		}
+	// CameraComponent->LerpCamera(DeltaTime, StaticMeshComponent, CameraComponent->SpringArmComponent);
+	//movementComponent->Move(DeltaTime, StaticMeshComponent, moveInput);
+	jumpTimer += DeltaTime;
+	boostTimer += DeltaTime;
+
+
+	if (boostTimer > 0.08f) {
+		movementComponent->movementSpeed = 10;
+	}
+	if (GroundCheck()) {
+		canDash = true;
 	}
 }

@@ -24,13 +24,19 @@ public:
 	void SpawnEnemy();
 
 
+	UPROPERTY(EditAnywhere, Category="SpawnPositions")
 	FVector SpawnPosition1;
+	
+	UPROPERTY(EditAnywhere, Category="SpawnPositions")
 	FVector SpawnPosition2;
+	
+	UPROPERTY(EditAnywhere, Category="SpawnPositions")
 	FVector SpawnPosition3;
+	
 	TArray<FVector> SpawnPositions;
 	int SpawnPositionIndex;
 
-	int EnemySpeed = -700;
+	int EnemySpeed = -5000;
 
 	float EnemySpawnInterval = 1;
 
@@ -44,5 +50,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	
 
 };

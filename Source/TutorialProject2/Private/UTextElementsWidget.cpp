@@ -14,9 +14,13 @@ void UTextElementsWidget::NativeConstruct(){
 	Time = Cast<UTextBlock>(GetWidgetFromName(TEXT("Time")));
 	ReadyText = Cast<UTextBlock>(GetWidgetFromName(TEXT("ReadyText")));
 
-	Life1 = Cast<UImage>(GetWidgetFromName(TEXT("Life1")));
-	Life2 = Cast<UImage>(GetWidgetFromName(TEXT("Life2")));
-	Life3 = Cast<UImage>(GetWidgetFromName(TEXT("Life3")));
+	Player1Life1 = Cast<UImage>(GetWidgetFromName(TEXT("Player1Life1")));
+	Player1Life2 = Cast<UImage>(GetWidgetFromName(TEXT("Player1Life2")));
+	Player1Life3 = Cast<UImage>(GetWidgetFromName(TEXT("Life3Player33")));
+
+	Player2Life1 = Cast<UImage>(GetWidgetFromName(TEXT("Player2Life1")));
+	Player2Life2 = Cast<UImage>(GetWidgetFromName(TEXT("Player2Life2")));
+	Player2Life3 = Cast<UImage>(GetWidgetFromName(TEXT("Player2Life3")));
 	
 	UE_LOG(LogTemp, Display, TEXT("UI TEXT Widget Constructed"));
 }
@@ -26,7 +30,6 @@ void UTextElementsWidget::SetTimer(int MSec, int Sec, int Min)
 	if(Time)
 	{
 		FString sMin, sSec, sMSec;
-
 		if(Min<10)
 		{
 			sMin = "0" + FString::FromInt(Min);
@@ -62,22 +65,4 @@ void UTextElementsWidget::SetTimer(int MSec, int Sec, int Min)
 
 		Time->SetText(FText::FromString(stringFullTime));
 	}
-}
-
-void UTextElementsWidget::RemoveLife() {
-	switch(Life) {
-	case 3:
-		Life3->SetOpacity(0.0f);
-		break;
-	case 2:
-		Life2->SetOpacity(0.0f);
-		break;
-	case 1:
-		Life1->SetOpacity(0.0f);
-		UGameplayStatics::OpenLevel(GetWorld(), FName(*GetWorld()->GetName()), false);
-		break;
-	default: ;
-	}
-	Life-=1;
-	UE_LOG(LogTemp, Warning, TEXT("Life = %d"), Life);
 }

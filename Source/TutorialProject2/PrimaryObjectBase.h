@@ -19,10 +19,9 @@ class UMovement;
 class UInputSystem;
 class UCameraMovement;
 class UPauseMenuWidget;
-class UTextElementsWidget;
 
 UCLASS(Config=Game)
-class TUTORIALPROJECT2_API APrimaryObjectBase : public APawn {
+class TUTORIALPROJECT2_API APrimaryObjectBase : public ACharacter {
 	GENERATED_BODY()
 
 public:
@@ -37,32 +36,32 @@ public:
 	UPROPERTY(EditAnywhere, Category="MovementProperties")
 	UMovement* movementComponent;
 
-	UPROPERTY(EditAnywhere, Category="UCameraMovement")
-	UCameraMovement* CameraComponent;
+	// UPROPERTY(EditAnywhere, Category="UCameraMovement")
+	// UCameraMovement* CameraComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WidgetClass")
 	TSubclassOf<UUserWidget> PauseWidgetClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WidgetClass")
-	TSubclassOf<UUserWidget> UITextWidgetClass;
-
-	
+	int32 Player1Life = 3;
+	int32 Player2Life = 3;
 
 	UPROPERTY()
 	UUserWidget* PauseWidgetInstance;
 
-	UPROPERTY()
-	UUserWidget* UITextWidgetInstance;
-
 	UPauseMenuWidget* PauseWidget;
-	UTextElementsWidget* UITextWidget;
 	
 	APrimaryObjectBase();
 
 	FVector2D moveInput;
 
+	void RemoveLife();
+
 	void TurnLeft(const FInputActionValue& Value);
 	void TurnRight(const FInputActionValue& Value);
+
+	void MoveLeftP2(const FInputActionValue& Value);
+	void MoveRightP2(const FInputActionValue& Value);
+	
 	void MoveLeft(const FInputActionValue& Value);
 	void MoveRight(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
@@ -73,16 +72,14 @@ public:
 
 	void MovePlayer(FVector fvector);
 
+	UPROPERTY(VisibleAnywhere)
+	int32 PlayerIndex;
+
 	bool Paused = false;
 	bool ButtonThresh = false;
 
 	float jumpCooldown = 2;
 	float jumpTimer;
-
-	float TotalTime = 0;
-	
-	float TimeFromStart = 0;
-	bool GameStarted = false;
 	
 	float boostTimer;
 	
@@ -90,12 +87,31 @@ public:
 	bool isInAir;
 	bool GroundCheck();
 	
-	TArray<FVector> PlayerPositions;
-	FVector PlayerPosition1;
-	FVector PlayerPosition2;
-	FVector PlayerPosition3;
+	TArray<FVector> Player1Positions;
+	TArray<FVector> Player2Positions;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerPositions")
+	FVector Player1Position1;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerPositions")
+	FVector Player1Position2;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerPositions")
+	FVector Player1Position3;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerPositions")
+	FVector Player2Position1;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerPositions")
+	FVector Player2Position2;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerPositions")
+	FVector Player2Position3;
+	
 	FVector CurrentPosition;
 	int PlayerPositionIndex;
+
+	TArray<FVector> GetCorrectArray(int playerNumbner);
 
 
 protected:

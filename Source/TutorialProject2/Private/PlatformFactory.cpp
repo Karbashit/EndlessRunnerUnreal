@@ -28,7 +28,6 @@ void APlatformFactory::Tick(float DeltaTime)
 	FVector FrontPlatformPosition = PlatformPool[0]->GetActorLocation();
 	if (FrontPlatformPosition.Y < 0)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Moving"));
 		RepositionPlatform(PlatformPool[0], PlatformPool.Top());
 	}
 }
@@ -52,7 +51,6 @@ void APlatformFactory::SpawnPlatforms()
 			                                                      SpawnLocation, FRotator::ZeroRotator);
 			NewPlatform->SetActorLocation(SpawnLocation);
 			PlatformPool.Add(NewPlatform);
-			UE_LOG(LogTemp, Display, TEXT("Component location: %s"), *SpawnLocation.ToString());
 		}
 	}
 }
@@ -61,9 +59,7 @@ void APlatformFactory::RepositionPlatform(AMovingPlatform* platform1, AMovingPla
 {
 	FVector Offset(0, 1175, 0);
 	FVector Platform2Position = platform2->GetActorLocation();
-	UE_LOG(LogTemp, Warning, TEXT("Platform2 position: %s"), *Platform2Position.ToString());
 	platform1->SetActorLocation(Platform2Position + Offset);
-	UE_LOG(LogTemp, Warning, TEXT("Number of elements in MyArray: %d"), PlatformPool.Num());
 	AMovingPlatform* CachedPlatform = platform1;
 	PlatformPool.Add(CachedPlatform);
 	PlatformPool.RemoveAt(0);

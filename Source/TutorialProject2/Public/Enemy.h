@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CreateSharedUI.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
 #include "Enemy.generated.h"
@@ -15,6 +16,9 @@ class TUTORIALPROJECT2_API AEnemy : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AEnemy();
+	
+
+	
 	int speed;
 	UBoxComponent* TriggerVolume;
 
@@ -27,6 +31,13 @@ protected:
 
 public:	
 	// Called every frame
+	float LifeTime;
+
+	int32 Lane;
+
+	bool LifeTimeIsGreater(float LifeTime1, float LifeTime2);
+	
+	
 	virtual void Tick(float DeltaTime) override;
 	void MoveEnemy(AActor* actor, float DeltaTime);
 

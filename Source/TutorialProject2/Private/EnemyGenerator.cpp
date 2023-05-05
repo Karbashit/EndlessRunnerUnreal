@@ -17,9 +17,6 @@ AEnemyGenerator::AEnemyGenerator()
 void AEnemyGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-	SpawnPosition1 = FVector(101.887642f, 13272.998087f, 64.317042f);
-	SpawnPosition2 = FVector(-35.965259f, 13272.998087f, 64.317042f);
-	SpawnPosition3 = FVector(-184.489698f, 13272.998087f, 64.317042f);
 	SpawnPositions.Add(SpawnPosition1);
 	SpawnPositions.Add(SpawnPosition2); 
 	SpawnPositions.Add(SpawnPosition3);
@@ -31,6 +28,13 @@ void AEnemyGenerator::SpawnEnemy() {
 	FVector SpawnLocation = SpawnPositions[SpawnPositionIndex];
 	AEnemy* NewEnemy = GetWorld()->SpawnActor<AEnemy>(EnemyClass, SpawnLocation, FRotator::ZeroRotator);
 	NewEnemy->speed = EnemySpeed;
+	
+	if(SpawnLocation.X > 0) {
+		NewEnemy->Lane = 0;
+	}
+	else {
+		NewEnemy->Lane = 1;
+	}
 }
 
 // Called every frame
